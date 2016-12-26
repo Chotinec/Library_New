@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>#{msg.welcome_title}</title>
+        <h:outputStylesheet library="css" name="style_index.css" />
+    </h:head>
+    <h:body>
+        
+        <div class="main">
+            
+            <div class="content">
+                <div class="center"><h:graphicImage library="images" name="lib.png"/></div>
+                <p class="title">#{msg.index_title}</p>
+            </div>
+            
+            <div class="login center">
+                <p class="title">#{msg.input_info}</p>
+                
+                <h:form>
+                    #{msg.input_name}<h:inputText id="username" value="#{user.username}"/>
+                </h:form>
+            </div>
+            
+        </div>
+        
+    </h:body>
+</html>
+
