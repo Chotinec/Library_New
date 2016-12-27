@@ -49,7 +49,13 @@ img {
 .login {
     margin: auto;
     width: 25vw;
-    height: 15vh;
+    height: 20vh;
     border: 1px solid lightgray;
     
+}
+
+.error {
+    color: #ff0000;
+    font-style: italic;
+    font-size: 12px;
 }
