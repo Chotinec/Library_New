@@ -16,7 +16,35 @@
             </ui:define>
             
             <ui:define name="content">
-                #{param.genre_id}  
+                <!--#{param.genre_id}-->
+                <p><strong>#{msg.book_count}: #{searchController.bookList.size()}</strong></p>
+                
+                <h:dataTable value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
+                    
+                    <h:column>
+                        <h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/>
+                    </h:column>
+                    
+                    <h:column>
+                        
+                        <div>
+                            <p> <a href="#">#{b.name}</a></p>
+                            <p><strong>#{msg.author_name}: </strong>#{b.auther}</p>
+                            <p><strong>#{msg.page_count}: </strong>#{b.pageCount} #{msg.pages}</p>
+                            <p><strong>#{msg.publisher}: </strong>#{b.publisher}</p>
+                            <p><strong>#{msg.publish_year}: </strong>#{b.publishDate} #{msg.year}</p>
+                            <p><strong>#{msg.isbn}: </strong>#{b.isbn}</p>
+                        </div>
+                        
+                    </h:column>
+                    
+                    <h:column>
+                        <p><strong>#{msg.descr}</strong></p>
+                        <p>#{b.descr}</p>
+                    </h:column>
+                    
+                </h:dataTable>
+                
             </ui:define>
             
         </ui:composition>

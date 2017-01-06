@@ -1,5 +1,6 @@
-package com.library.web.beans;
+package com.library.web.controllers;
 
+import com.library.web.beans.Genre;
 import com.library.web.db.Database;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -12,20 +13,21 @@ import java.util.logging.Logger;
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 
-@ManagedBean
+@ManagedBean(eager = true)
 @ApplicationScoped
-public class Genres {
+public class GenreController {
     
     private List<Genre> genreList = new ArrayList<>();
     
+    public GenreController() {
+        fillGenresAll();
+    }
+    
     public List<Genre> getGenreList() {
-        if (genreList.isEmpty()) {
-            return getGeners();
-        }
         return genreList;
     }
     
-    private List<Genre> getGeners() {
+    private void fillGenresAll() {
         
         Connection conn = null;
         Statement stmt = null;
@@ -42,17 +44,16 @@ public class Genres {
                 genreList.add(genre);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GenreController.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
                 if (conn != null) conn.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GenreController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
-        return genreList;
-    }    
+    }
 }

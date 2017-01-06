@@ -21,19 +21,34 @@
             </div>
             
             <div class="welcome">
-                <h5>#{msg.welcome}</h5>
-                <h6>#{msg.exit}</h6>
+                
+                <h5>#{msg.welcome}, #{user.username}</h5>
+                <!--<h6><a href="#">#{msg.exit}</a></h6>-->
+                <h6><h:form>
+                    <h:commandLink action="#{logoutController.logout()}" value="#{msg.exit}"/> 
+                </h:form></h6>
+                
             </div>
             
             <div class="search_div">
                 <h:form styleClass="search_form">
-                    <h:inputText id="search_string" styleClass="search_string"/>
-                    <h:commandButton styleClass="search_button" value="#{msg.search}"/>
+                    <h:inputText id="search_string" styleClass="search_string" value="#{searchController.searchString}"/>
+                    <h:commandButton styleClass="search_button" value="#{msg.search}" action="#{searchController.fillBooksBySearch()}"/>
                     <h:selectOneMenu value="#{searchController.searchType}" styleClass="search_menu">
                         <f:selectItems value="${searchController.searchlist}" />
                     </h:selectOneMenu>
                 </h:form>
             </div>
+            
+            <h:form styleClass="letters">
+                
+                <ui:repeat value="#{searchController.russianLetters}" var="letter">  
+                    <h:commandLink action="#{searchController.fillBooksByLetter()}" value="#{letter}">
+                        <f:param name="letter" value="#{letter}"/>
+                    </h:commandLink>
+                </ui:repeat>
+                
+             </h:form>    
             
         </ui:composition>
         
