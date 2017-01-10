@@ -202,6 +202,14 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
     width: 240px;
 }
 
+.col2 a.content_link{
+    color:red;
+    font-size: 11px;
+    text-decoration: underline;
+    margin-left: 5px;
+    font-weight: bold
+}
+
 .col2 a {
     font-weight: bold;
     color: #378de5;
@@ -248,9 +256,10 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
 .letters{
     float:left;
     height: 20px;
-    margin: 10px;
+    padding: 10px;
     width: 100%;
     text-align: center;
+    background-color: #EEE;
 }
 
 .letters a{
@@ -273,4 +282,27 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
     float: left;
     padding: 3px;
     margin:3px;
+}
+
+.pager a {
+    margin-left: 5px;
+    margin-top:50px;
+}
+
+.pager {
+    width: 100%;
+    float: left;
+    margin-left: 15px;
+}
+
+.pager .selected_page {
+    color: red;
+}
+
+.genres a.selected_genre{
+    color: red;
+}
+
+.letters a.selected_letter {
+    color: red;
 }

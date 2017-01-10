@@ -2,7 +2,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
        xmlns:h="http://xmlns.jcp.org/jsf/html"
-       xmlns:ui="http://java.sun.com/jsf/facelets">
+       xmlns:ui="http://java.sun.com/jsf/facelets"
+       xmlns:f="http://xmlns.jcp.org/jsf/core">
     
     <h:head>
         <title>Facelet Title</title>
@@ -16,24 +17,29 @@
             </ui:define>
             
             <ui:define name="content">
-                <!--#{param.genre_id}-->
-                <p><strong>#{msg.book_count}: #{searchController.bookList.size()}</strong></p>
+
+                <p><strong>#{msg.book_count}: #{searchController.totalBooksCount}</strong></p>
+                
+                <ui:insert name="pages">
+                    <ui:include src="/templates/pages.xhtml"/>
+                </ui:insert>
                 
                 <h:dataTable value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
                     
                     <h:column>
-                        <h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/>
+                        <h:outputLink><h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/></h:outputLink>
                     </h:column>
                     
                     <h:column>
                         
                         <div>
-                            <p> <a href="#">#{b.name}</a></p>
+                            <p> <h:outputLink value="#{request.getContextPath()}/PdfContent?index=#{b.id}" target="_blank">#{b.name}</h:outputLink></p>
                             <p><strong>#{msg.author_name}: </strong>#{b.auther}</p>
                             <p><strong>#{msg.page_count}: </strong>#{b.pageCount} #{msg.pages}</p>
                             <p><strong>#{msg.publisher}: </strong>#{b.publisher}</p>
                             <p><strong>#{msg.publish_year}: </strong>#{b.publishDate} #{msg.year}</p>
                             <p><strong>#{msg.isbn}: </strong>#{b.isbn}</p>
+                            <p><h:graphicImage library="images" name="book.gif" /><h:outputLink value="#{request.getContextPath()}/PdfContent?index=#{b.id}" target="blank" styleClass="content_link">#{msg.read}</h:outputLink></p>
                         </div>
                         
                     </h:column>
@@ -44,6 +50,10 @@
                     </h:column>
                     
                 </h:dataTable>
+                
+                <ui:insert name="pages">
+                    <ui:include src="/templates/pages.xhtml"/>
+                </ui:insert>
                 
             </ui:define>
             

@@ -13,6 +13,10 @@
         <servlet-name>ShowImage</servlet-name>
         <servlet-class>com.library.web.servlets.ShowImage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PdfContent</servlet-name>
+        <servlet-class>com.library.web.servlets.PdfContent</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>/faces/*</url-pattern>
@@ -20,6 +24,10 @@
     <servlet-mapping>
         <servlet-name>ShowImage</servlet-name>
         <url-pattern>/ShowImage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PdfContent</servlet-name>
+        <url-pattern>/PdfContent</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
