@@ -11,17 +11,21 @@
     </h:head>
     <h:body>
         
-        <div class="pager">
+        <ui:component>
+            <div class="pager">
             <h:form rendered="#{searchController.totalBooksCount > searchController.booksOnPage}">
                 #{msg.pager}
                         
                 <ui:repeat value="#{searchController.pageNumbers}" var="pageNumbers">
-                    <h:commandLink action="#{searchController.selectPage()}" value="#{pageNumbers}" styleClass="#{pageNumbers == searchController.selectedPageNumber ? 'selected_page' : ''}">
+                    <h:commandLink value="#{pageNumbers}" styleClass="#{pageNumbers == searchController.selectedPageNumber ? 'selected_page' : ''}">
                         <f:param name="page_number" value="#{pageNumbers}"/>
+                        <f:ajax onevent="showProgress" event="click" render=":booksList :lettersForm :pages1 :pages2" listener="#{searchController.selectPage()}"/>
                     </h:commandLink>
                 </ui:repeat>
             </h:form>
-        </div>
+            </div>
+        </ui:component>
+        
         
     </h:body>
 </html>

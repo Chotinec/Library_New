@@ -56,6 +56,8 @@ public class SearchController implements Serializable{
     
     public void fillBooksByGenre() {
         
+       imitateLoading();
+        
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedGenreId = Integer.valueOf(params.get("genre_id"));
         
@@ -70,6 +72,8 @@ public class SearchController implements Serializable{
     
     public void fillBooksByLetter(){
         
+        imitateLoading();
+        
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedLetter = params.get("letter").charAt(0);
         
@@ -83,6 +87,8 @@ public class SearchController implements Serializable{
     }
     
     public void fillBooksBySearch() {
+        
+        imitateLoading();
         
         if (searchString.trim().length() == 0) {
             fillBooksAll();
@@ -114,6 +120,9 @@ public class SearchController implements Serializable{
     }
     
     public String selectPage() {
+        
+        imitateLoading();
+        
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedPageNumber = Integer.valueOf(params.get("page_number"));
         fillBooksBySQL(currentSql);
@@ -374,5 +383,13 @@ public class SearchController implements Serializable{
 
     public void setRequestFromPager(boolean requestFromPager) {
         this.requestFromPager = requestFromPager;
+    }
+    
+    private void imitateLoading() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

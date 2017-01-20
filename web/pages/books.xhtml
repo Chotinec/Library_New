@@ -12,19 +12,21 @@
         
         <ui:composition template="/templates/library_template.xhtml">
             
+            <ui:define name="books_count">
+                <h:outputText value="#{msg.book_count} #{searchController.totalBooksCount}" id="booksCount"></h:outputText> 
+            </ui:define>
+            
             <ui:define name="title">
                 #{msg.welcome_title}
             </ui:define>
             
             <ui:define name="content">
-
-                <p><strong>#{msg.book_count}: #{searchController.totalBooksCount}</strong></p>
                 
-                <ui:insert name="pages">
+                <!--<ui:insert name="pages">
                     <ui:include src="/templates/pages.xhtml"/>
-                </ui:insert>
+                </ui:insert>-->
                 
-                <h:dataTable value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
+                <h:dataTable id="booksList" value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
                     
                     <h:column>
                         <h:outputLink><h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/></h:outputLink>
@@ -51,9 +53,9 @@
                     
                 </h:dataTable>
                 
-                <ui:insert name="pages">
+                <!--<ui:insert name="pages">
                     <ui:include src="/templates/pages.xhtml"/>
-                </ui:insert>
+                </ui:insert>-->
                 
             </ui:define>
             

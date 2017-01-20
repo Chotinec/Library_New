@@ -6,8 +6,21 @@
     <h:head>
         <title>#{msg.welcome_title}</title>
         <h:outputStylesheet library="css" name="style_index.css" />
+        <h:outputScript library="js" name="library.js" />
+        
     </h:head>
     <h:body>
+        
+        <noscript>
+            
+            <h4><p>#{msg.no_javaScript}</p></h4>
+            
+            <style type="text/css">
+                .main {display: none;}
+                p {text-align: center;}
+            </style>
+            
+        </noscript>
         
         <div class="main">
             
@@ -22,9 +35,10 @@
                 <h:form>
                     #{msg.input_name}<h:inputText id="username" value="#{user.username}" required="true" requiredMessage="#{msg.login_required}">
                         <f:validator validatorId="com.library.web.validators.LoginValidator"/>
+                        <f:ajax event="keyup" render="loginError"/>
                     </h:inputText>
-                    <h:commandButton action="#{loginController.login()}" value="Войти"/>
-                    <p><h:message for="username" styleClass="error"/></p>
+                    <h:commandButton action="#{loginController.login()}" styleClass="login_button" value="#{msg.entry}" onclick="return checkValue(this.form, '#{msg.login_required}')" />
+                    <p><h:message for="username" id="loginError" styleClass="error"/></p>
                 </h:form>
             </div>
             
