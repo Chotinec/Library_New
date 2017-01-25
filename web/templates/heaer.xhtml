@@ -22,22 +22,29 @@
             
             <div class="welcome">
                 
-                <h5>#{msg.welcome}, #{user.username}</h5>
-                <!--<h6><a href="#">#{msg.exit}</a></h6>-->
-                <h6><h:form>
-                    <h:commandLink action="#{logoutController.logout()}" value="#{msg.exit}"/> 
-                </h:form></h6>
+                <h:form>
+                    <ui:insert name="locales">
+                        <ui:include src="/templates/locales.xhtml"/>
+                    </ui:insert>
+                    
+                    <h5>#{msg.welcome}, #{user.username}</h5>
+                    <!--<h6><a href="#">#{msg.exit}</a></h6>-->
+                    <h5><h:commandLink action="#{logoutController.logout()}" value="#{msg.exit}"/></h5> 
+                </h:form>
                 
             </div>
             
             <div class="search_div">
                 <h:form styleClass="search_form">
-                    <h:inputText id="search_string" styleClass="search_string" value="#{searchController.searchString}"/>
+                    <h:inputText id="search_string" styleClass="search_string" value="#{searchController.searchString}" valueChangeListener="#{searchController.changeSearchString}">
+                        <f:ajax event="change" />
+                    </h:inputText>
                     <h:commandButton styleClass="search_button" value="#{msg.search}">
                         <f:ajax onevent="showProgress" execute="@form" render=":booksList @form :lettersForm :pages1 :pages2 :booksCount" listener="#{searchController.fillBooksBySearch()}"/>
                     </h:commandButton>
-                    <h:selectOneMenu value="#{searchController.searchType}" styleClass="search_menu">
-                        <f:selectItems value="${searchController.searchlist}" />
+                    <h:selectOneMenu value="#{searchController.searchType}" styleClass="search_menu" valueChangeListener="#{searchController.changeSearchType}">
+                        <f:selectItems value="#{searchTypeController.searchList}" />
+                        <f:ajax event="change" />
                     </h:selectOneMenu>
                 </h:form>
             </div>

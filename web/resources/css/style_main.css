@@ -120,6 +120,7 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
 
 .search_menu{
     margin-left: 5px;
+    width: 95px;
 }
 
 .logo{
@@ -145,6 +146,7 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
 }
 
 .search_button {
+    width: 100px;
     -moz-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
     -webkit-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
     box-shadow:inset 0px 1px 0px 0px #bbdaf7;

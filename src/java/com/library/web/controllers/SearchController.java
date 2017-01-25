@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpSession;
 
 @ManagedBean
@@ -383,6 +384,14 @@ public class SearchController implements Serializable{
 
     public void setRequestFromPager(boolean requestFromPager) {
         this.requestFromPager = requestFromPager;
+    }
+    
+    public void changeSearchString(ValueChangeEvent e) {
+        searchString = e.getNewValue().toString();
+    }
+    
+    public void changeSearchType(ValueChangeEvent e) {
+        searchType = (SearchType) e.getNewValue();
     }
     
     private void imitateLoading() {
