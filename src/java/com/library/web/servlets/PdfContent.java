@@ -8,6 +8,7 @@ package com.library.web.servlets;
 import com.library.web.controllers.SearchController;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,15 +32,26 @@ public class PdfContent extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         response.setContentType("application/pdf");
+        response.setContentType("application/pdf");
         OutputStream out = response.getOutputStream();
+        
         try {
             int index = Integer.valueOf(request.getParameter("index"));
+            Boolean save = Boolean.valueOf(request.getParameter("save"));
+            
             FacesContext context = FacesContext.getCurrentInstance();
             SearchController searchController = (SearchController) request.getSession(false).getAttribute("searchController");
             byte[] content = searchController.getContent(index);
             response.setContentLength(content.length);
+            if (save) {
+                String bookName = request.getParameter("name");           
+                String URLEncodedBookName = URLEncoder.encode(bookName, "UTF-8");
+                String resultBookName = URLEncodedBookName.replace('+', ' ');
+                response.setHeader("Content-Disposition", "attachment;filename=" + resultBookName  + ".pdf");
+            }
             out.write(content);
+        } catch(Exception e) {
+            e.printStackTrace();
         } finally {
             out.close();
         }

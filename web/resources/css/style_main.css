@@ -212,6 +212,14 @@ ul.nav a:hover, ul.nav a:active, ul.nav a:focus {
     font-weight: bold
 }
 
+.col2 a.save_link {
+    color: #3333ff;
+    font-size: 11px;
+    text-decoration: underline;
+    margin-left: 5px;
+    font-weight: bold
+}
+
 .col2 a {
     font-weight: bold;
     color: #378de5;

@@ -41,7 +41,22 @@
                             <p><strong>#{msg.publisher}: </strong>#{b.publisher}</p>
                             <p><strong>#{msg.publish_year}: </strong>#{b.publishDate} #{msg.year}</p>
                             <p><strong>#{msg.isbn}: </strong>#{b.isbn}</p>
-                            <p><h:graphicImage library="images" name="book.gif" /><h:outputLink value="#{request.getContextPath()}/PdfContent?index=#{b.id}" target="blank" styleClass="content_link">#{msg.read}</h:outputLink></p>
+                            <p>
+                                <h:graphicImage library="images" name="book.gif" />
+                                <h:outputLink value="#{request.getContextPath()}/PdfContent" target="blank" styleClass="content_link">
+                                    <h:outputText value="#{msg.read}" />
+                                    <f:param name="index" value="#{b.id}" />
+                                    <f:param name="save" value="false" />
+                                </h:outputLink>
+                                
+                                <h:graphicImage library="images" name="download.png"/>
+                                <h:outputLink value="#{request.getContextPath()}/PdfContent" styleClass="save_link" target="blank">
+                                    <h:outputText value="#{msg.dowload}" />
+                                    <f:param name="index" value="#{b.id}" />
+                                    <f:param name="name" value="#{b.name}" />
+                                    <f:param name="save" value="true"/>
+                                </h:outputLink>
+                            </p>
                         </div>
                         
                     </h:column>
