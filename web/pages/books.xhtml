@@ -22,11 +22,34 @@
             
             <ui:define name="content">
                 
-                <!--<ui:insert name="pages">
-                    <ui:include src="/templates/pages.xhtml"/>
-                </ui:insert>-->
-                
-                <h:dataTable id="booksList" value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
+                <h:form id="booksForm">
+                    
+                    <h:panelGroup id="adminTools">
+                        
+                        <h:commandLink rendered="#{!searchController.editMode}">
+                            <h:graphicImage library="images" name="add.jpg" />
+                            <h:outputText value="#{msg.add_book}" />
+                            <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
+                        </h:commandLink>
+                        
+                        <h:commandLink action="#{searchController.showEdit()}" rendered="#{!searchController.editMode}">
+                            <h:graphicImage library="images" name="edit.jpg" />
+                            <h:outputText value="#{msg.edit}" />
+                            <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
+                        </h:commandLink>
+                        
+                        <h:commandButton action="#{searchController.updateBooks()}" rendered="#{searchController.editMode}" value="#{msg.save}">
+                            <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
+                        </h:commandButton>  
+                        
+                        <h:commandButton immediate="true" action="#{searchController.cancelEdit()}" rendered="#{searchController.editMode}" value="#{msg.cancel}">
+                            <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
+                        </h:commandButton>
+                        
+                        <h:messages />
+                    </h:panelGroup>
+                    
+                    <h:dataTable id="booksList" value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
                     
                     <h:column>
                         <h:outputLink><h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/></h:outputLink>
@@ -35,43 +58,104 @@
                     <h:column>
                         
                         <div>
-                            <p> <h:outputLink value="#{request.getContextPath()}/PdfContent?index=#{b.id}" target="_blank">#{b.name}</h:outputLink></p>
-                            <p><strong>#{msg.author_name}: </strong>#{b.auther}</p>
-                            <p><strong>#{msg.page_count}: </strong>#{b.pageCount} #{msg.pages}</p>
-                            <p><strong>#{msg.publisher}: </strong>#{b.publisher}</p>
-                            <p><strong>#{msg.publish_year}: </strong>#{b.publishDate} #{msg.year}</p>
-                            <p><strong>#{msg.isbn}: </strong>#{b.isbn}</p>
-                            <p>
-                                <h:graphicImage library="images" name="book.gif" />
-                                <h:outputLink value="#{request.getContextPath()}/PdfContent" target="blank" styleClass="content_link">
-                                    <h:outputText value="#{msg.read}" />
+                            <p> 
+                                <h:outputLink value="#{request.getContextPath()}/PdfContent?index=#{b.id}" target="_blank" rendered="#{!b.edit}">
+                                    <h:outputText value="#{b.name}"/>
                                     <f:param name="index" value="#{b.id}" />
-                                    <f:param name="save" value="false" />
                                 </h:outputLink>
                                 
-                                <h:graphicImage library="images" name="download.png"/>
-                                <h:outputLink value="#{request.getContextPath()}/PdfContent" styleClass="save_link" target="blank">
-                                    <h:outputText value="#{msg.dowload}" />
-                                    <f:param name="index" value="#{b.id}" />
-                                    <f:param name="name" value="#{b.name}" />
-                                    <f:param name="save" value="true"/>
-                                </h:outputLink>
+                                <h:inputText value="#{b.name}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                                    <!--<f:param name="index" value="#{b.id}" />-->
+                            </p>
+                            
+                            <p>
+                                <strong>#{msg.author_name}: </strong>
+                                <h:outputText value="#{b.auther}" rendered="#{!b.edit}"/>
+                                <h:inputText value="#{b.auther}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                            
+                            <p>
+                                <strong>#{msg.page_count}: </strong>
+                                <h:outputText value="#{b.pageCount} #{msg.pages}" rendered="#{!b.edit}" />
+                                <h:inputText value="#{b.pageCount}" styleClass="pages_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                            
+                            <p>
+                                <strong>#{msg.publisher}: </strong>
+                                <h:outputText value="#{b.publisher}" rendered="#{!b.edit}" />
+                                <h:inputText value="#{b.publisher}" styleClass="publisher_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                            
+                            <p>
+                                <strong>#{msg.publish_year}: </strong>
+                                <h:outputText value="#{b.publishDate} #{msg.year}" rendered="#{!b.edit}" />
+                                <h:inputText value="#{b.publishDate}" styleClass="date_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                            
+                            <p>
+                                <strong>#{msg.isbn}: </strong>
+                                <h:outputText value="#{b.isbn}" rendered="#{!b.edit}" />
+                                <h:inputText value="#{b.isbn}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                            
+                            <p>
+                                <h:panelGroup rendered="#{!searchController.editMode}">
+                                    <h:graphicImage library="images" name="book.gif" />
+                                    <h:outputLink value="#{request.getContextPath()}/PdfContent" target="blank" styleClass="content_link">
+                                        <h:outputText value="#{msg.read}" />
+                                        <f:param name="index" value="#{b.id}" />
+                                        <f:param name="save" value="false" />
+                                    </h:outputLink>
+                                
+                                    <h:graphicImage library="images" name="download.png"/>
+                                    <h:outputLink value="#{request.getContextPath()}/PdfContent" styleClass="save_link" target="blank">
+                                        <h:outputText value="#{msg.dowload}" />
+                                        <f:param name="index" value="#{b.id}" />
+                                        <f:param name="name" value="#{b.name}" />
+                                        <f:param name="save" value="true"/>
+                                    </h:outputLink>
+                                </h:panelGroup>
+                                
                             </p>
                         </div>
                         
                     </h:column>
                     
                     <h:column>
-                        <p><strong>#{msg.descr}</strong></p>
-                        <p>#{b.descr}</p>
+                        <div class="book_details">
+                            <p><strong>#{msg.descr}</strong></p>
+                            <p>
+                                <h:outputText value="#{b.descr}" rendered="#{!b.edit}" />
+                                <h:inputTextarea value="#{b.descr}" styleClass="descr_edit" rendered="#{searchController.editMode and b.edit}" />
+                            </p>
+                        </div>
+                    </h:column>
+                        
+                    <h:column>
+                        
+                        <h:selectBooleanCheckbox value="#{b.edit}" rendered="#{!searchController.editMode}">
+                            <f:ajax event="change" />
+                        </h:selectBooleanCheckbox>
+                        
                     </h:column>
                     
                 </h:dataTable>
-                
-                <!--<ui:insert name="pages">
-                    <ui:include src="/templates/pages.xhtml"/>
-                </ui:insert>-->
-                
+                    
+                </h:form>
+                      
+            </ui:define>
+            
+             <ui:define name="paginator" >
+                 <h:form rendered="#{searchController.totalBooksCount>searchController.booksOnPage}">
+                    #{msg.pager}
+
+                    <ui:repeat value="#{searchController.pageNumbers}" var="pageNumber" >
+                        <h:commandLink value="#{pageNumber}" styleClass="#{pageNumber == searchController.selectedPageNumber ? 'selected_page':''}">
+                            <f:param name="page_number" value="#{pageNumber}" />
+                            <f:ajax onevent="showProgress" event="click" render=":booksForm:booksList :lettersForm :pages1 :pages2" listener="#{searchController.selectPage()}"/>
+                        </h:commandLink>
+                    </ui:repeat>
+                </h:form>
             </ui:define>
             
         </ui:composition>

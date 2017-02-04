@@ -38,23 +38,17 @@
                     <p><strong><ui:insert name="books_count"/></strong></p>
                     
                     <div class="pager">
-                        <h:panelGroup id="pages1" layout="block">
-                            <ui:insert name="paginator">
-                                <ui:include src="/templates/pages.xhtml"/>
-                            </ui:insert>
-                        </h:panelGroup>
+                        <h:panelGroup id="pages1" layout="block"> <ui:insert name="paginator"/> </h:panelGroup>
                     </div>
                     
-                    <ui:insert name="content">
+                    <div class="content_books">
+                        <ui:insert name="content">
                         <ui:include src="/templates/content.xhtml"/>
                     </ui:insert>
+                    </div>
                     
                     <div class="pager">
-                        <h:panelGroup id="pages2" layout="block">
-                            <ui:insert name="paginator">
-                                <ui:include src="/templates/pages.xhtml"/>
-                            </ui:insert>
-                        </h:panelGroup>
+                        <h:panelGroup id="pages2" layout="block"> <ui:insert name="paginator"/> </h:panelGroup>
                     </div>
                 </div>
                 

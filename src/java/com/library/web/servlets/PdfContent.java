@@ -33,9 +33,7 @@ public class PdfContent extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/pdf");
-        OutputStream out = response.getOutputStream();
-        
-        try {
+        try (OutputStream out = response.getOutputStream()) {
             int index = Integer.valueOf(request.getParameter("index"));
             Boolean save = Boolean.valueOf(request.getParameter("save"));
             
@@ -51,9 +49,6 @@ public class PdfContent extends HttpServlet {
             }
             out.write(content);
         } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            out.close();
         }
     }
 

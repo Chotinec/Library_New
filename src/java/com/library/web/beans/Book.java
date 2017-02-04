@@ -20,10 +20,11 @@ public class Book implements Serializable {
     private String isbn;
     private String genre;
     private String auther;
-    private Date publishDate;
+    private int publishDate;
     private String publisher;
     private byte[] image;
     private String descr;
+    private boolean edit;
     
     private static final String CONTENT_QUERY = "select content from book where id=";
     
@@ -87,11 +88,11 @@ public class Book implements Serializable {
         this.auther = autherId;
     }
 
-    public Date getPublishDate() {
+    public int getPublishDate() {
         return publishDate;
     }
 
-    public void setPublishDate(Date publishYear) {
+    public void setPublishDate(int publishYear) {
         this.publishDate = publishYear;
     }
 
@@ -117,6 +118,14 @@ public class Book implements Serializable {
 
     public void setDescr(String descr) {
         this.descr = descr;
+    }
+    
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(boolean edit) {
+        this.edit = edit;
     }
     
     public void fillPdfContent() {

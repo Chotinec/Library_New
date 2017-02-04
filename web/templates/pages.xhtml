@@ -19,7 +19,7 @@
                 <ui:repeat value="#{searchController.pageNumbers}" var="pageNumbers">
                     <h:commandLink value="#{pageNumbers}" styleClass="#{pageNumbers == searchController.selectedPageNumber ? 'selected_page' : ''}">
                         <f:param name="page_number" value="#{pageNumbers}"/>
-                        <f:ajax onevent="showProgress" event="click" render=":booksList :lettersForm :pages1 :pages2" listener="#{searchController.selectPage()}"/>
+                        <f:ajax onevent="showProgress" event="click" render=":booksForm:booksList :lettersForm :pages1 :pages2" listener="#{searchController.selectPage()}"/>
                     </h:commandLink>
                 </ui:repeat>
             </h:form>

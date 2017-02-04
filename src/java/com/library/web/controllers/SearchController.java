@@ -5,6 +5,7 @@ import com.library.web.db.Database;
 import com.library.web.enums.SearchType;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -19,7 +20,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import javax.servlet.http.HttpSession;
 
 @ManagedBean
 @SessionScoped
@@ -37,6 +37,16 @@ public class SearchController implements Serializable{
     private String currentSql;
     private int selectedGenreId;
     private char selectedLetter;
+    private boolean editMode;
+
+    public String getCurrentSql() {
+        return currentSql;
+    }
+
+    public void setCurrentSql(String currentSql) {
+        this.currentSql = currentSql;
+    }
+
     
     public SearchController() {
         fillBooksAll();
@@ -62,7 +72,7 @@ public class SearchController implements Serializable{
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedGenreId = Integer.valueOf(params.get("genre_id"));
         
-        submitValues(' ', selectedGenreId, 1, false);
+        submitValues(' ', 1, selectedGenreId, false);
         
         fillBooksBySQL("select b.id,b.name,b.isbn,b.page_count,b.publish_year, p.name as publisher, a.fio as author, g.name as genre, b.image, b.descr from book b "
                 + "inner join author a on b.author_id=a.id "
@@ -78,7 +88,7 @@ public class SearchController implements Serializable{
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedLetter = params.get("letter").charAt(0);
         
-        submitValues(selectedLetter, -1, 1, false);
+        submitValues(selectedLetter, 1, -1, false);
         
         fillBooksBySQL("select b.id,b.name,b.isbn,b.page_count,b.publish_year, p.name as publisher, a.fio as author, g.name as genre, b.image, b.descr from book b "
                 + "inner join author a on b.author_id=a.id "
@@ -96,7 +106,7 @@ public class SearchController implements Serializable{
             return;
         }
         
-        submitValues(' ', -1, 1, false);
+        submitValues(' ', 1, -1, false);
         
         StringBuilder sql = new StringBuilder("select b.id,b.name,b.isbn,b.page_count,b.publish_year, p.name as publisher, a.fio as author, g.name as genre, b.image, b.descr from book b "
                 + "inner join author a on b.author_id=a.id "
@@ -113,11 +123,12 @@ public class SearchController implements Serializable{
         fillBooksBySQL(sql.toString());
     }
     
-    private void submitValues(char selectedLetter, int selectedGenreId, long selectedPageNumber , boolean requestFromPager) {
+    private void submitValues(Character selectedLetter, long selectedPageNumber, int selectedGenreId, boolean requestFromPager) {
         this.selectedLetter = selectedLetter;
-        this.selectedGenreId = selectedGenreId;
         this.selectedPageNumber = selectedPageNumber;
+        this.selectedGenreId = selectedGenreId;
         this.requestFromPager = requestFromPager;
+
     }
     
     public String selectPage() {
@@ -172,7 +183,7 @@ public class SearchController implements Serializable{
                 book.setIsbn(rs.getString("isbn"));
                 book.setAuther(rs.getString("author"));
                 book.setPageCount(rs.getInt("page_count"));
-                book.setPublishDate(rs.getDate("publish_year"));
+                book.setPublishDate(rs.getInt("publish_year"));
                 book.setPublisher(rs.getString("publisher"));
                 //book.setImage(rs.getBytes("image"));
                 book.setDescr(rs.getString("descr"));
@@ -251,6 +262,50 @@ public class SearchController implements Serializable{
         return image;
     }
     
+    public String updateBooks() {
+        
+        imitateLoading();
+        
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        
+        try {
+            con = Database.getConnection();
+            prepStmt = con.prepareStatement("update book set name=?, isbn=?, page_count=?, publish_year=?, descr=? where id=?");
+            
+            for (Book book : bookList) {
+                if (!book.isEdit()) continue;
+                prepStmt.setString(1, book.getName());
+                prepStmt.setString(2, book.getIsbn());
+                prepStmt.setInt(3, book.getPageCount());
+                
+                System.out.println("count - " + book.getPageCount());
+                
+                prepStmt.setInt(4, book.getPublishDate());
+                prepStmt.setString(5, book.getDescr());
+                prepStmt.setLong(6, book.getId());
+                
+                prepStmt.addBatch();
+            }
+            
+            prepStmt.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (prepStmt != null) prepStmt.close();
+                if (con != null) con.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+        
+        cancelEdit();
+        return "books";
+    }
+    
     public Character[] getRussianLetters() {
         Character[] letters = new Character[33];
         letters[0] = 'А';
@@ -304,6 +359,17 @@ public class SearchController implements Serializable{
         for (int i = 1; i <= pageCount; i++) {
             pageNumbers.add(i);
         }
+    }
+    
+    public void cancelEdit(){
+        editMode = false;
+        for (Book book : bookList) {
+            book.setEdit(false);
+        }
+    }
+    
+    public void showEdit() {
+        editMode = true;   
     }
     
      public List<Book> getBookList() {
@@ -384,6 +450,14 @@ public class SearchController implements Serializable{
 
     public void setRequestFromPager(boolean requestFromPager) {
         this.requestFromPager = requestFromPager;
+    }
+    
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
     }
     
     public void changeSearchString(ValueChangeEvent e) {
