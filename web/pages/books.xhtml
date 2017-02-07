@@ -26,30 +26,30 @@
                     
                     <h:panelGroup id="adminTools">
                         
-                        <h:commandLink rendered="#{!searchController.editMode}">
+                        <h:commandLink rendered="#{!searchController.editModeView}">
                             <h:graphicImage library="images" name="add.jpg" />
                             <h:outputText value="#{msg.add_book}" />
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
                         </h:commandLink>
                         
-                        <h:commandLink action="#{searchController.showEdit()}" rendered="#{!searchController.editMode}">
+                        <h:commandLink action="#{searchController.showEdit()}" rendered="#{!searchController.editModeView}">
                             <h:graphicImage library="images" name="edit.jpg" />
                             <h:outputText value="#{msg.edit}" />
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
                         </h:commandLink>
                         
-                        <h:commandButton action="#{searchController.updateBooks()}" rendered="#{searchController.editMode}" value="#{msg.save}">
+                        <h:commandButton action="#{searchController.updateBooks()}" rendered="#{searchController.editModeView}" value="#{msg.save}">
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
                         </h:commandButton>  
                         
-                        <h:commandButton immediate="true" action="#{searchController.cancelEdit()}" rendered="#{searchController.editMode}" value="#{msg.cancel}">
+                        <h:commandButton immediate="true" action="#{searchController.cancelEdit()}" rendered="#{searchController.editModeView}" value="#{msg.cancel}">
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
                         </h:commandButton>
                         
                         <h:messages />
                     </h:panelGroup>
                     
-                    <h:dataTable id="booksList" value="#{searchController.bookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
+                    <h:dataTable id="booksList" value="#{searchController.currentBookList}" var="b" cellpadding="10px" columnClasses="col1, col2, col3">
                     
                     <h:column>
                         <h:outputLink><h:graphicImage value="/ShowImage?id=#{b.id}" width="120" height="140"/></h:outputLink>
@@ -64,42 +64,42 @@
                                     <f:param name="index" value="#{b.id}" />
                                 </h:outputLink>
                                 
-                                <h:inputText value="#{b.name}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.name}" styleClass="name_edit" rendered="#{searchController.editModeView and b.edit}" />
                                     <!--<f:param name="index" value="#{b.id}" />-->
                             </p>
                             
                             <p>
                                 <strong>#{msg.author_name}: </strong>
                                 <h:outputText value="#{b.auther}" rendered="#{!b.edit}"/>
-                                <h:inputText value="#{b.auther}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.auther}" styleClass="name_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                             
                             <p>
                                 <strong>#{msg.page_count}: </strong>
                                 <h:outputText value="#{b.pageCount} #{msg.pages}" rendered="#{!b.edit}" />
-                                <h:inputText value="#{b.pageCount}" styleClass="pages_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.pageCount}" styleClass="pages_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                             
                             <p>
                                 <strong>#{msg.publisher}: </strong>
                                 <h:outputText value="#{b.publisher}" rendered="#{!b.edit}" />
-                                <h:inputText value="#{b.publisher}" styleClass="publisher_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.publisher}" styleClass="publisher_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                             
                             <p>
                                 <strong>#{msg.publish_year}: </strong>
                                 <h:outputText value="#{b.publishDate} #{msg.year}" rendered="#{!b.edit}" />
-                                <h:inputText value="#{b.publishDate}" styleClass="date_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.publishDate}" styleClass="date_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                             
                             <p>
                                 <strong>#{msg.isbn}: </strong>
                                 <h:outputText value="#{b.isbn}" rendered="#{!b.edit}" />
-                                <h:inputText value="#{b.isbn}" styleClass="name_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputText value="#{b.isbn}" styleClass="name_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                             
                             <p>
-                                <h:panelGroup rendered="#{!searchController.editMode}">
+                                <h:panelGroup rendered="#{!searchController.editModeView}">
                                     <h:graphicImage library="images" name="book.gif" />
                                     <h:outputLink value="#{request.getContextPath()}/PdfContent" target="blank" styleClass="content_link">
                                         <h:outputText value="#{msg.read}" />
@@ -126,14 +126,14 @@
                             <p><strong>#{msg.descr}</strong></p>
                             <p>
                                 <h:outputText value="#{b.descr}" rendered="#{!b.edit}" />
-                                <h:inputTextarea value="#{b.descr}" styleClass="descr_edit" rendered="#{searchController.editMode and b.edit}" />
+                                <h:inputTextarea value="#{b.descr}" styleClass="descr_edit" rendered="#{searchController.editModeView and b.edit}" />
                             </p>
                         </div>
                     </h:column>
                         
                     <h:column>
                         
-                        <h:selectBooleanCheckbox value="#{b.edit}" rendered="#{!searchController.editMode}">
+                        <h:selectBooleanCheckbox value="#{b.edit}" rendered="#{!searchController.editModeView}">
                             <f:ajax event="change" />
                         </h:selectBooleanCheckbox>
                         
@@ -146,7 +146,17 @@
             </ui:define>
             
              <ui:define name="paginator" >
-                 <h:form rendered="#{searchController.totalBooksCount>searchController.booksOnPage}">
+                 <h:form>
+                     
+                     <h:selectOneMenu value="#{searchController.booksCountOnPage}" valueChangeListener="#{searchController.booksOnPageChanged}">
+                         <f:selectItem itemValue="5"/>
+                         <f:selectItem itemValue="10"/>
+                         <f:selectItem itemValue="30"/>
+                         <f:selectItem itemValue="50"/>
+                         
+                         <f:ajax event="change" onevent="showProgress" execute="@form" render=":booksForm :booksForm:booksList :pages1 :pages2"/>
+                     </h:selectOneMenu>
+                     
                     #{msg.pager}
 
                     <ui:repeat value="#{searchController.pageNumbers}" var="pageNumber" >

@@ -40,7 +40,9 @@
                         <f:validator validatorId="com.library.web.validators.LoginValidator"/>
                         <f:ajax event="keyup" render="loginError"/>
                     </h:inputText>
-                    <h:commandButton action="#{loginController.login()}" styleClass="login_button" value="#{msg.entry}" onclick="return checkValue(this.form, '#{msg.login_required}')" />
+                    <h:commandButton action="#{loginController.login()}" styleClass="login_button" value="#{msg.entry}" onclick="return checkValue(this.form, '#{msg.login_required}')">
+                        <f:ajax execute="@form"/>
+                    </h:commandButton>
                     <p><h:message for="username" id="loginError" styleClass="error"/></p>
                     
                     <ui:insert name="locales">

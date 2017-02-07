@@ -36,7 +36,7 @@
             
             <div class="search_div">
                 <h:form styleClass="search_form">
-                    <h:inputText id="search_string" styleClass="search_string" value="#{searchController.searchString}" valueChangeListener="#{searchController.changeSearchString}">
+                    <h:inputText id="search_string" styleClass="search_string" value="#{searchController.currentSearchString}" valueChangeListener="#{searchController.changeSearchString}">
                         <f:ajax event="change" />
                     </h:inputText>
                     <h:commandButton styleClass="search_button" value="#{msg.search}">

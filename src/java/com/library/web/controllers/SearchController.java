@@ -25,26 +25,28 @@ import javax.faces.event.ValueChangeEvent;
 @SessionScoped
 public class SearchController implements Serializable{
     
-    private boolean requestFromPager;
-    private SearchType searchType;
-    private static Map<String, SearchType> searchlist = new HashMap<String, SearchType>();
-    private List<Book> bookList;
-    private String searchString;    
-    private int booksOnPage = 2;
-    private long selectedPageNumber = 1;
-    private long totalBooksCount;
-    private List<Integer> pageNumbers = new ArrayList<>();
-    private String currentSql;
-    private int selectedGenreId;
-    private char selectedLetter;
-    private boolean editMode;
+    private List<Book> currentBookList; //current books list
+    private List<Integer> pageNumbers = new ArrayList<>(); //number of pages for paging through
+    private boolean pageSelected;
+    private SearchType searchType = SearchType.TITLE; //keep search type
+    private static Map<String, SearchType> searchlist = new HashMap<String, SearchType>(); 
+    private String currentSearchString; //current search string   
+    private int booksCountOnPage = 2; //number of books displayed on one page
+    private long selectedPageNumber = 1; //default selected page
+    private long totalBooksCount; //general books count
+    private String currentSqlNoLimit; //lust sql query with out the limit
+    private int selectedGenreId; //selected genre
+    private char selectedLetter; //selected letter, no leeter is choosen by default
+    private int pageCount; //page 
+    //-----------------
+    private boolean editModeView; //view edit mode
 
-    public String getCurrentSql() {
-        return currentSql;
+    public String getCurrentSqlNoLimit() {
+        return currentSqlNoLimit;
     }
 
-    public void setCurrentSql(String currentSql) {
-        this.currentSql = currentSql;
+    public void setCurrentSqlNoLimit(String currentSqlNoLimit) {
+        this.currentSqlNoLimit = currentSqlNoLimit;
     }
 
     
@@ -57,6 +59,67 @@ public class SearchController implements Serializable{
         searchlist.put(bundle.getString("book_name"), searchType.TITLE);
     }
     
+    //<editor-fold defaultstate="collapsed" desc="queries to database">
+    private void fillBooksBySQL(String query) {
+        
+        StringBuilder sqlBuilder = new StringBuilder(query);
+        
+        currentSqlNoLimit = query;
+        
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Database.getConnection();
+            stmt = conn.createStatement();
+            
+            if (!pageSelected) {
+                rs = stmt.executeQuery(sqlBuilder.toString());
+                rs.last();
+                
+                totalBooksCount = rs.getRow();
+                
+                fillPageNumbers(totalBooksCount, booksCountOnPage);
+            }
+            
+            if (totalBooksCount > booksCountOnPage) {
+                sqlBuilder.append(" limit ").append(selectedPageNumber * booksCountOnPage - booksCountOnPage).append(",").append(booksCountOnPage);
+            }
+            
+            rs = stmt.executeQuery(sqlBuilder.toString());
+            
+            currentBookList = new ArrayList<>();
+            
+            System.out.println(sqlBuilder);
+            
+            while (rs.next()) {
+                Book book = new Book();
+                book.setId(rs.getLong("id"));
+                book.setName(rs.getString("name"));
+                book.setGenre(rs.getString("genre"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setAuther(rs.getString("author"));
+                book.setPageCount(rs.getInt("page_count"));
+                book.setPublishDate(rs.getInt("publish_year"));
+                book.setPublisher(rs.getString("publisher"));
+                //book.setImage(rs.getBytes("image"));
+                book.setDescr(rs.getString("descr"));
+                currentBookList.add(book);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
     public void fillBooksAll() {
         fillBooksBySQL("select b.id,b.name,b.isbn,b.page_count,b.publish_year, p.name as publisher, a.fio as author, g.name as genre, b.image, b.descr from book b "
                 + "inner join author a on b.author_id=a.id "
@@ -67,7 +130,7 @@ public class SearchController implements Serializable{
     
     public void fillBooksByGenre() {
         
-       imitateLoading();
+        imitateLoading();
         
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         selectedGenreId = Integer.valueOf(params.get("genre_id"));
@@ -101,7 +164,7 @@ public class SearchController implements Serializable{
         
         imitateLoading();
         
-        if (searchString.trim().length() == 0) {
+        if (currentSearchString.trim().length() == 0) {
             fillBooksAll();
             return;
         }
@@ -114,92 +177,13 @@ public class SearchController implements Serializable{
                 + "inner join publisher p on b.publisher_id=p.id ");
         
         if (SearchType.AUTHOR == searchType) {
-            sql.append("where lower(a.fio) like '%" + searchString.toLowerCase() + "%' order by b.name ");
-
+            sql.append("where lower(a.fio) like '%" + currentSearchString.toLowerCase() + "%' order by b.name ");
+            
         } else if (searchType == SearchType.TITLE) {
-            sql.append("where lower(b.name) like '%" + searchString.toLowerCase() + "%' order by b.name ");
+            sql.append("where lower(b.name) like '%" + currentSearchString.toLowerCase() + "%' order by b.name ");
         }
         
         fillBooksBySQL(sql.toString());
-    }
-    
-    private void submitValues(Character selectedLetter, long selectedPageNumber, int selectedGenreId, boolean requestFromPager) {
-        this.selectedLetter = selectedLetter;
-        this.selectedPageNumber = selectedPageNumber;
-        this.selectedGenreId = selectedGenreId;
-        this.requestFromPager = requestFromPager;
-
-    }
-    
-    public String selectPage() {
-        
-        imitateLoading();
-        
-        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        selectedPageNumber = Integer.valueOf(params.get("page_number"));
-        fillBooksBySQL(currentSql);
-        requestFromPager = true;
-        return "books";
-    }
-    
-    private void fillBooksBySQL(String query) {
-        
-        StringBuilder sqlBuilder = new StringBuilder(query);
-        
-        currentSql = query;
-        
-        Connection conn = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        
-        try {
-        conn = Database.getConnection();
-        stmt = conn.createStatement();
-                
-        if (!requestFromPager) {
-                rs = stmt.executeQuery(sqlBuilder.toString());
-                rs.last();
-
-                totalBooksCount = rs.getRow();
-            
-                fillPageNumbers(totalBooksCount, booksOnPage);
-            }
-            
-            if (totalBooksCount > booksOnPage) {  
-                sqlBuilder.append(" limit ").append(selectedPageNumber * booksOnPage - booksOnPage).append(",").append(booksOnPage);    
-            }
-            
-            rs = stmt.executeQuery(sqlBuilder.toString());
-            
-            bookList = new ArrayList<>();
-            
-            System.out.println(sqlBuilder);
-            
-            while (rs.next()) {
-                Book book = new Book();
-                book.setId(rs.getLong("id"));
-                book.setName(rs.getString("name"));
-                book.setGenre(rs.getString("genre"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setAuther(rs.getString("author"));
-                book.setPageCount(rs.getInt("page_count"));
-                book.setPublishDate(rs.getInt("publish_year"));
-                book.setPublisher(rs.getString("publisher"));
-                //book.setImage(rs.getBytes("image"));
-                book.setDescr(rs.getString("descr"));
-                bookList.add(book);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
     
     public byte[] getImage(int id) {
@@ -274,7 +258,7 @@ public class SearchController implements Serializable{
             con = Database.getConnection();
             prepStmt = con.prepareStatement("update book set name=?, isbn=?, page_count=?, publish_year=?, descr=? where id=?");
             
-            for (Book book : bookList) {
+            for (Book book : currentBookList) {
                 if (!book.isEdit()) continue;
                 prepStmt.setString(1, book.getName());
                 prepStmt.setString(2, book.getIsbn());
@@ -299,11 +283,29 @@ public class SearchController implements Serializable{
                 if (con != null) con.close();
             } catch (SQLException ex) {
                 Logger.getLogger(SearchController.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+            }
         }
         
         cancelEdit();
         return "books";
+    }
+//</editor-fold>
+    
+    private void submitValues(Character selectedLetter, long selectedPageNumber, int selectedGenreId, boolean requestFromPager) {
+        this.selectedLetter = selectedLetter;
+        this.selectedPageNumber = selectedPageNumber;
+        this.selectedGenreId = selectedGenreId;
+        this.pageSelected = requestFromPager;
+
+    }
+    
+    public void selectPage() {
+        cancelEdit();
+        imitateLoading();
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        selectedPageNumber = Integer.valueOf(params.get("page_number"));
+        pageSelected = true;
+        fillBooksBySQL(currentSqlNoLimit); 
     }
     
     public Character[] getRussianLetters() {
@@ -345,77 +347,100 @@ public class SearchController implements Serializable{
         return letters;
     }
     
+    //<editor-fold defaultstate="collapsed" desc="page by page">
     private void fillPageNumbers(long totalBooksCount, int booksOnPage) {
-
-        int pageCount = totalBooksCount > 0 ? (int) (totalBooksCount / booksOnPage) : 0;
         
-        if (totalBooksCount / booksOnPage % booksOnPage > 0) {
-            pageCount++;
+        pageCount = totalBooksCount > 0 ? (int) (totalBooksCount / booksOnPage) : 0;
+        
+        if (totalBooksCount / booksOnPage % booksOnPage == 0) {
+            pageCount = totalBooksCount > 0 ? (int) (totalBooksCount / booksOnPage) : 0;
+        } else {
+            pageCount = totalBooksCount > 0 ? (int) (totalBooksCount / booksOnPage)+1 : 0;
         }
         
-        System.out.println(pageCount);
-
         pageNumbers.clear();
         for (int i = 1; i <= pageCount; i++) {
             pageNumbers.add(i);
         }
     }
     
+    public void booksOnPageChanged(ValueChangeEvent e) {
+        imitateLoading();
+        
+        cancelEdit();
+        pageSelected = false;
+        booksCountOnPage = Integer.valueOf(e.getNewValue().toString()).intValue();
+        selectedPageNumber = 1;
+        fillBooksBySQL(currentSqlNoLimit);
+    }
+//</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="editing mode">
     public void cancelEdit(){
-        editMode = false;
-        for (Book book : bookList) {
+        editModeView = false;
+        for (Book book : currentBookList) {
             book.setEdit(false);
         }
     }
     
     public void showEdit() {
-        editMode = true;   
+        editModeView = true;
+    }
+//</editor-fold>
+    
+    public void changeSearchString(ValueChangeEvent e) {
+        currentSearchString = e.getNewValue().toString();
     }
     
-     public List<Book> getBookList() {
-        return bookList;
+    public void changeSearchType(ValueChangeEvent e) {
+        searchType = (SearchType) e.getNewValue();
     }
     
-     public SearchType getSearchType() {
+    //<editor-fold defaultstate="collapsed" desc="getters and setters">
+    public List<Book> getCurrentBookList() {
+        return currentBookList;
+    }
+    
+    public SearchType getSearchType() {
         return searchType;
     }
-     
+    
     public void setSearchType(SearchType searchType) {
         this.searchType = searchType;
     }
-
+    
     public Map<String, SearchType> getSearchlist() {
         return searchlist;
     }
     
-    public String getSearchString() {
-        return searchString;
+    public String getCurrentSearchString() {
+        return currentSearchString;
     }
-
-    public void setSearchString(String searchString) {
-        this.searchString = searchString;
+    
+    public void setCurrentSearchString(String currentSearchString) {
+        this.currentSearchString = currentSearchString;
     }
     
     public long getTotalBooksCount() {
         return totalBooksCount;
     }
-
+    
     public void setTotalBooksCount(long totalBooksCount) {
         this.totalBooksCount = totalBooksCount;
     }
     
-    public int getBooksOnPage() {
-        return booksOnPage;
+    public int getBooksCountOnPage() {
+        return booksCountOnPage;
     }
     
-    public void setBooksOnPage(int booksOnPage) {
-        this.booksOnPage = booksOnPage;
+    public void setBooksCountOnPage(int booksCountOnPage) {
+        this.booksCountOnPage = booksCountOnPage;
     }
     
     public List<Integer> getPageNumbers() {
         return pageNumbers;
     }
-
+    
     public void setPageNumbers(List<Integer> pageNumbers) {
         this.pageNumbers = pageNumbers;
     }
@@ -423,7 +448,7 @@ public class SearchController implements Serializable{
     public long getSelectedPageNumber() {
         return selectedPageNumber;
     }
-
+    
     public void setSelectedPageNumber(long selectedPageNumber) {
         this.selectedPageNumber = selectedPageNumber;
     }
@@ -431,42 +456,35 @@ public class SearchController implements Serializable{
     public int getSelectedGenreId() {
         return selectedGenreId;
     }
-
+    
     public void setSelectedGenreId(int selectedGenreId) {
         this.selectedGenreId = selectedGenreId;
     }
-
+    
     public char getSelectedLetter() {
         return selectedLetter;
     }
-
+    
     public void setSelectedLetter(char selectedLetter) {
         this.selectedLetter = selectedLetter;
     }
     
-    public boolean isRequestFromPager() {
-        return requestFromPager;
-    }
-
-    public void setRequestFromPager(boolean requestFromPager) {
-        this.requestFromPager = requestFromPager;
+    public boolean isPageSelected() {
+        return pageSelected;
     }
     
-    public boolean isEditMode() {
-        return editMode;
-    }
-
-    public void setEditMode(boolean editMode) {
-        this.editMode = editMode;
+    public void setPageSelected(boolean pageSelected) {
+        this.pageSelected = pageSelected;
     }
     
-    public void changeSearchString(ValueChangeEvent e) {
-        searchString = e.getNewValue().toString();
+    public boolean isEditModeView() {
+        return editModeView;
     }
     
-    public void changeSearchType(ValueChangeEvent e) {
-        searchType = (SearchType) e.getNewValue();
+    public void setEditModeView(boolean editModeView) {
+        this.editModeView = editModeView;
     }
+//</editor-fold>
     
     private void imitateLoading() {
         try {

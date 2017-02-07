@@ -8,7 +8,6 @@ package com.library.web.servlets;
 import com.library.web.controllers.SearchController;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
