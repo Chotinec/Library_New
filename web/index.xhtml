@@ -27,27 +27,61 @@
         
         <div class="main">
             
+            <ui:include src="/templates/locales.xhtml"/>
+            
             <div class="content">
                 <div class="center"><h:graphicImage library="images" name="lib.png"/></div>
-                <p class="title">#{msg.index_title}</p>
+                <h:form id="login_title">
+                    <p class="title">#{msg.index_title}</p>
+                </h:form>
+                
             </div>
             
             <div class="login center">
-                <p class="title">#{msg.input_info}</p>
                 
-                <h:form>
-                    #{msg.input_name}<h:inputText id="username" value="#{user.username}" required="true" requiredMessage="#{msg.login_required}">
-                        <f:validator validatorId="com.library.web.validators.LoginValidator"/>
-                        <f:ajax event="keyup" render="loginError"/>
-                    </h:inputText>
-                    <h:commandButton action="#{loginController.login()}" styleClass="login_button" value="#{msg.entry}" onclick="return checkValue(this.form, '#{msg.login_required}')">
-                        <f:ajax execute="@form"/>
-                    </h:commandButton>
-                    <p><h:message for="username" id="loginError" styleClass="error"/></p>
+                <h:form styleClass="login_form" id="login_form">
                     
-                    <ui:insert name="locales">
-                        <ui:include src="/templates/locales.xhtml" />
-                    </ui:insert>
+                    <table align="left" width="350" cellspacing="5">
+                        <tr>
+                            <td align="left" width="100"><span style="color: red;">*</span> #{msg.input_name}</td>
+                            <td width="200">
+                                <h:inputText id="username" value="#{user.username}" required="true" requiredMessage="#{msg.login_required}">
+                                    <!--<f:validator validatorId="com.library.web.validators.LoginValidator"/>
+                                    <f:ajax event="keyup" render="loginError"/>-->
+                                </h:inputText>
+                            </td>
+                            <td rowspan="2">
+                                <div id="load_image">
+                                    <h:graphicImage library="images" name="splash.gif"/>
+                                </div>                 
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td align="left"><span style="color: red;">*</span> #{msg.input_password}</td>
+                            <td>
+                                <h:inputSecret id="password" value="#{user.password}" required="true" redisplay="true" requiredMessage="#{msg.password_required}">
+                                    <!--<f:validator validatorId="com.library.web.validators.LoginValidator"/>
+                                    <f:ajax event="keyup" render="loginError"/>-->
+                                </h:inputSecret>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="3" align="center">
+                                <h:commandButton action="#{user.login()}" styleClass="login_button" value="#{msg.entry}" onclick="return checkValue(this.form, '#{msg.login_required}')">
+                                    <f:ajax execute="@form" render="@form" onevent="monitor"/>
+                                </h:commandButton>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <p><h:message for="login_form" id="loginError" styleClass="error"/></p>
+                                <p><h:message for="username" id="username_input" styleClass="error"/></p>
+                            </td>
+                        </tr>
+                    </table>
+   
                 </h:form>
             </div>
             

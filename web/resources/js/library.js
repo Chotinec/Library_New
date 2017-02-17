@@ -20,3 +20,12 @@ function showProgress(data) {
     }
     
 }
+
+function monitor(data){
+    
+    if (data.status == "begin") {
+        document.getElementById('load_image').style.display = "block";
+    } else if (data.status == "success") {
+        document.getElementById('load_image').style.display = "none";
+    }
+}

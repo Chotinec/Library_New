@@ -26,13 +26,13 @@
                     
                     <h:panelGroup id="adminTools">
                         
-                        <h:commandLink rendered="#{!searchController.editModeView}">
+                        <h:commandLink rendered="#{!searchController.editModeView and user.admin}">
                             <h:graphicImage library="images" name="add.jpg" />
                             <h:outputText value="#{msg.add_book}" />
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
                         </h:commandLink>
                         
-                        <h:commandLink action="#{searchController.showEdit()}" rendered="#{!searchController.editModeView}">
+                        <h:commandLink action="#{searchController.showEdit()}" rendered="#{!searchController.editModeView and user.admin}">
                             <h:graphicImage library="images" name="edit.jpg" />
                             <h:outputText value="#{msg.edit}" />
                             <!--<f:ajax onevent="showProgress" execute="@form" render="@form" />-->
